@@ -48,14 +48,14 @@ cv_key_order = ['基本信息','教育经历','职业经历','项目经历','科
 
 # get improved personal cv json
 improved_cv_json = ut.get_improved_cv_json(information, cv_key_order, notarget_list, target_list, keywords_target_list, job_keywords)
-time.sleep(15)
+time.sleep(1)
 
 # turn json cv into markdown
 first_cv_json, second_cv_json = ut.split_cv_into_twoparts(improved_cv_json)
 improved_cv_first_md = qwen.writeCV_first(first_cv_json)
-time.sleep(15)
+time.sleep(1)
 improved_cv_second_md = qwen.wirteCV_second(improved_cv_first_md, second_cv_json)
-time.sleep(15)
+time.sleep(1)
 
 improved_cv_first_md = re.sub(r'```markdown','',improved_cv_first_md)
 improved_cv_first_md = re.sub(r'---\n\n','',improved_cv_first_md)
@@ -75,7 +75,7 @@ with open('./pyScripts/Resume_template_null.md', encoding='utf-8') as f:
 # get standard cv
 md_simple = qwen.wirteCV_simple(template_null, template, improved_cv_md)
 
-md_simple = re.sub(r'```markdown','',md_simple)
+md_simple = re.sub(r'```markdown\n','',md_simple)
 md_simple = re.sub(r'```','',md_simple)
 
 # with open('Resume_API\simple_cv.md', 'w', encoding='utf-8') as f:
