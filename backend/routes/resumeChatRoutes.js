@@ -5,13 +5,6 @@ const ImprovedUser = require('../mongodb/models/ImprovedUser.js');
 const { spawn } = require('child_process');
 const path = require('path');
 
-// function getFormattedDate() {
-//     const date = new Date();
-//     const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-indexed
-//     const day = date.getDate().toString().padStart(2, '0');
-//     return `${month}.${day}`;
-// }
-
 function formatDateString() {
     // Ensure the input is a Date object
     const dateObj = new Date();

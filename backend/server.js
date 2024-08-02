@@ -11,6 +11,7 @@ const authRoutes = require('./routes/authRoutes');
 const resumeTemplateRoutes = require('./routes/resumeTemplateRoutes');
 const resumeGuidanceRoutes = require('./routes/resumeGuidanceRoutes');
 const resumeAudioRoutes = require('./routes/resumeAudioRoutes');
+const interviewChatRoutes = require('./routes/interviewChatRoutes');
 require('dotenv').config();
 
 app.use(cors({
@@ -30,7 +31,7 @@ app.use('/api', authRoutes);
 app.use('/api',resumeTemplateRoutes);
 app.use('/api', resumeGuidanceRoutes);
 app.use('/api', resumeAudioRoutes);
-
+app.use('/api', interviewChatRoutes);
 const { Queue, Worker } = require('bull');
 const WebSocket = require('ws');
 const http = require('http');
