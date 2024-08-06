@@ -220,30 +220,22 @@ def ask_new_question(updated_json, priority_json, section_id, current_key):
 
 
 def find_first_diff(standard_json, updated_json, section_id):
-    # change type of standard_json and updated_json
-    print(type(standard_json))
-    print(list(standard_json.keys())[section_id])
+    # 获取当前部分的数据
     section_standard = standard_json[keys_list[section_id]]
     section_updated = updated_json[list(updated_json.keys())[section_id]]
-    # print type of section_standard
-    print(type(section_standard))
-    print(section_standard)    # 空的
-    print(section_updated)      # 空的
 
     if isinstance(section_standard, dict):
         for key in section_standard:
             if section_standard[key] == section_updated[key] and section_standard[key] == "":
                 return key
-        # if all the keys are the same, return the first key that is nan
         for key in section_updated:
             if section_updated[key] == "":
                 return key
     elif isinstance(section_standard, list):
         for i in range(len(section_standard)):
             for key in section_standard[i]:
-                if section_standard[i][key] == section_updated[i][key] and section_standard[i][key] == "":
+                if key in section_updated[i] and section_standard[i][key] == section_updated[i][key] and section_standard[i][key] == "":
                     return key
-        # if all the keys are the same, return the first key that is nan
         for item in section_updated:
             for key in item:
                 if item[key] == "":
@@ -252,16 +244,16 @@ def find_first_diff(standard_json, updated_json, section_id):
 def process_asking(json_data, section_id, standard_json):
     bool_check = check_if_initial(json_data, section_id)
     print(bool_check)
-    if bool_check: # if the section is already filled
+    if bool_check:  # 如果部分已经填写
         section_id += 1
-        # update the section_id in the chat record
+        # 更新聊天记录中的 section_id
         collection.update_one(
             {"_id": chatId},
             {"$set": {"sectionId": section_id}}
         )
         return initial_question_list[section_id]
     else:
-        # not the initial question, get the json chat data from json
+        # 获取 json 数据中的聊天记录
         current_key = find_first_diff(standard_json, json_data, section_id)
         print(current_key)
         print(section_id)
@@ -269,6 +261,8 @@ def process_asking(json_data, section_id, standard_json):
         print(relevant_section)
         new_question = ask_new_question(relevant_section, priority[keys_list[section_id]], section_id, current_key)
         return new_question
+
+# 其他函数不变
 
 
 def update_json(original_json, last_chat):
@@ -374,4 +368,3 @@ new_query = process_asking(json_update, section_id, standard_json)
 update_mongodb(chatId, new_query, resumeId, json_update)
 close_mongodb()
 print(new_query)
-
