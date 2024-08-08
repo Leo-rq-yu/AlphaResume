@@ -1,12 +1,3 @@
-import time
-import os
-import hashlib
-import hmac
-import pybase64
-import requests
-import urllib
-import json
-
 class RequestApi(object):
     def __init__(self, appid, secret_key, upload_file_path=None, audio_data=None):
         self.appid = appid
@@ -25,7 +16,7 @@ class RequestApi(object):
         md5 = bytes(md5, encoding='utf-8')
         # 以secret_key为key, 上面的md5为msg， 使用hashlib.sha1加密结果为signa
         signa = hmac.new(secret_key.encode('utf-8'), md5, hashlib.sha1).digest()
-        signa = pybase64.b64encode(signa)
+        signa = base64.b64encode(signa)
         signa = str(signa, 'utf-8')
         return signa
 
@@ -51,7 +42,7 @@ class RequestApi(object):
             "duration": "200"
         }
 
-        response = requests.post(url='https://raasr.xfyun.cn/v2/api/upload?' + urllib.parse.urlencode(param_dict),
+        response = requests.post(url=lfasr_host + api_upload + "?" + urllib.parse.urlencode(param_dict),
                                  headers={"Content-type": "application/json"}, data=data)
         result = json.loads(response.text)
         return result
@@ -69,7 +60,7 @@ class RequestApi(object):
         status = 3
         # 建议使用回调的方式查询结果，查询接口有请求频率限制
         while status == 3:
-            response = requests.post(url='https://raasr.xfyun.cn/v2/api/getResult?' + urllib.parse.urlencode(param_dict),
+            response = requests.post(url=lfasr_host + api_get_result + "?" + urllib.parse.urlencode(param_dict),
                                      headers={"Content-type": "application/json"})
             # print("get_result_url:",response.request.url)
             result = json.loads(response.text)
