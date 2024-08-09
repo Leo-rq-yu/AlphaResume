@@ -162,7 +162,7 @@ def update_mongodb(question_list, chat_id):
             {"$push": {"question_list": question_list}}
         )
 
-        print(json.dumps({"status": "success"}))
+        #print(json.dumps({"status": "success"}))
     else:
         print(json.dumps({"status": "error", "message": "Chat record not found"}))
 
@@ -171,7 +171,7 @@ def update_mongodb(question_list, chat_id):
 resume, interviewtype, companyinfo = get_resume_from_mongodb(resumeId)
 full_description = Search_from_db.get_company_info_from_mongodb(companyinfo)
 question_list = initialize_question(resume, interviewtype, companyinfo)
-print(question_list)
+#print(question_list)
 update_mongodb(question_list, chatId)
 client.close()
 

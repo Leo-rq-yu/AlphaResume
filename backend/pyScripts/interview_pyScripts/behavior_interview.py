@@ -185,7 +185,7 @@ def update_mongodb(chat_id, new_question):
             {"$push": {"messages": new_message}}
         )
 
-        print(json.dumps({"status": "success", "id": messages_length + 1, "message": new_message}))
+        #print(json.dumps({"status": "success", "id": messages_length + 1, "message": new_message}))
     else:
         print(json.dumps({"status": "error", "message": "Chat record not found"}))
 
@@ -200,9 +200,10 @@ def close_mongodb():
 
 
 
-resume, last_qa, question_list, company_info = get_chat_from_mongodb(chatId, resumeId)
+last_qa,resume, question_list, company_info = get_chat_from_mongodb(chatId, resumeId)
 update_question_list(chatId, last_qa, question_list)
 full_company_information = Search_from_db.get_company_info_from_mongodb(company_info)
 new_question = summarize_and_ask(resume, last_qa, question_list, full_company_information)
+print("new_question: "+new_question)
 update_mongodb(chatId, new_question)
 close_mongodb()
