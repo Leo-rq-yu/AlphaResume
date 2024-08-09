@@ -103,9 +103,9 @@ def get_chat_from_mongodb(chat_id, resume_id):
         print(f"An error occurred: {e}")
         last_message['answer'] = "An error occurred while processing the request."
 
-#xuyaoxiugai
+
     company_info = {}
-    company_info['面试公司'] = chat_record['company']
+    company_info['面试公司'] = chat_record['companyName']
     company_info['岗位'] = chat_record['position']
 
 
