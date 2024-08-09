@@ -14,6 +14,7 @@ import audio_to_text
 
 from sparkai.llm.llm import ChatSparkLLM, ChunkPrintHandler
 from sparkai.core.messages import ChatMessage
+import Search_from_db
 
 from qwen_model import generate_response
 
@@ -54,15 +55,33 @@ resumeId = sys.argv[2]
 def get_resume_from_mongodb(resume_id):
 
     user_record = collection_1.find_one({"_id": resume_id})
+    chat_record = collection.find_one({"_id": chatId})
+    interview_type = chat_record['interviewType']
 
     resume = user_record['markdownData']
+    company_info = {}
+    company_info['面试公司'] = chat_record['company']
+    company_info['岗位'] = chat_record['position']
 
-    return resume
+    return resume, interview_type, company_info
 
 
-def initialize_question(resume):
+def initialize_question(resume, interview_type, company_info):
+    if interview_type == "技术面":
+        params = "该面试的特点是对求职者的专业技能进行考察，主要考察求职者的专业技能、知识水平和解决问题的能力。"
+    elif interview_type == "行为面":
+        params = "该面试的特点是对求职者的软技能进行考察，主要考察求职者的团队合作、沟通能力、应对压力和工作态度等方面。"
+    elif interview_type == "HR面":
+        params = "该面试的特点是对求职者的综合素质进行考察，主要考察求职者的综合素质、文化契合度和个人发展规划等方面。"
+    else:
+        # 此为业务面
+        params = "该面试的特点是对求职者的业务能力进行考察，主要考察求职者的业务能力、解决问题的能力和创新能力等方面。"
+
     prompt = (
         "你是一位友好的面试官，擅长与求职者进行交流与提问。你刚刚获得了一位面试者的简历。"
+        f"接下来你会与他进行一场{interview_type}的面试。"
+        f"该面试的特点是{params}\n"
+        f"公司和岗位信息如下：\n{company_info}\n"
         "请你按照以下步骤生成面试问题：\n"
         "1. 仔细分析面试者的简历内容，基于他的技能、经验和教育背景，判断他最适合的岗位。\n"
         "2. 针对该岗位，提出5个与岗位要求相关的专业性技术问题，确保问题能够评估面试者在该领域的技术能力和知识水平。\n"
@@ -101,8 +120,9 @@ def update_mongodb(question_list, chat_id):
 
 
 
-resume = get_resume_from_mongodb(resumeId)
-question_list = initialize_question(resume)
+resume, interviewtype, companyinfo = get_resume_from_mongodb(resumeId)
+full_description = Search_from_db.get_company_info_from_mongodb(companyinfo)
+question_list = initialize_question(resume, interviewtype, companyinfo)
 print(question_list)
 update_mongodb(question_list, chatId)
 client.close()

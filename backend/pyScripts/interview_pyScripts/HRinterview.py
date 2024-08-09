@@ -11,6 +11,7 @@ import time
 import requests
 import urllib
 import audio_to_text
+import Search_from_db
 
 from sparkai.llm.llm import ChatSparkLLM, ChunkPrintHandler
 from sparkai.core.messages import ChatMessage
@@ -102,9 +103,14 @@ def get_chat_from_mongodb(chat_id, resume_id):
         print(f"An error occurred: {e}")
         last_message['answer'] = "An error occurred while processing the request."
 
+#xuyaoxiugai
+    company_info = {}
+    company_info['面试公司'] = chat_record['company']
+    company_info['岗位'] = chat_record['position']
 
 
-    return last_message, resume, question_list
+
+    return last_message, resume, question_list, company_info
 
 
 def update_question_list(chat_id, last_qa, question_list):
@@ -137,9 +143,13 @@ def update_question_list(chat_id, last_qa, question_list):
 
 
 
-def summarize_and_ask(resume, last_qa, question_list):
+def summarize_and_ask(resume, last_qa, question_list, company_info=None):
+
     prompt = (
-        "你是一位友好的面试官，擅长与求职者进行交流与提问。现在你获得了上一个问题的对话记录，包括你提出的问题和面试者的回答。请你按照以下步骤生成下一段面试交流内容：\n"
+        "你是一位友好的面试官，擅长与求职者进行交流与提问。现在你正与面试者进行HR面试。\n"
+        "该面试的特点是对求职者的综合素质进行考察，主要考察求职者的综合素质、文化契合度和个人发展规划等方面。"
+        f"该面试者申请的公司信息及岗位信息如下：{company_info}\n"
+        "现在你获得了上一个问题的对话记录，包括你提出的问题和面试者的回答。请你按照以下步骤生成下一段面试交流内容：\n"
         "1. 适当总结面试者的回答，给予鼓励和支持。\n"
         "2. 判断上一个面试问题是否需要继续追问。如果需要，请提出一个追问的问题，并将这个问题与步骤1结合在一起。\n"
         "3. 如果不需要追问，请从以下备选问题列表中选出一个适合作为下一个面试题，并将这个问题与步骤1结合在一起。\n"
@@ -155,6 +165,7 @@ def summarize_and_ask(resume, last_qa, question_list):
 
     response = generate_response(prompt)
     return response
+
 
 
 
@@ -189,8 +200,9 @@ def close_mongodb():
 
 
 
-resume, last_qa, question_list = get_chat_from_mongodb(chatId, resumeId)
+resume, last_qa, question_list, company_info = get_chat_from_mongodb(chatId, resumeId)
 update_question_list(chatId, last_qa, question_list)
-new_question = summarize_and_ask(resume, last_qa, question_list)
+full_company_information = Search_from_db.get_company_info_from_mongodb(company_info)
+new_question = summarize_and_ask(resume, last_qa, question_list, full_company_information)
 update_mongodb(chatId, new_question)
 close_mongodb()
